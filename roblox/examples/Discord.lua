@@ -1,14 +1,44 @@
-local WS = require(workspace.WebSocket);
+local BotToken = "";
+local GameName = "Roblox";
 
+
+
+
+----------------------------------------------------
+
+
+local WS = require(workspace.WebSocket);
+WS.Setup("http://127.0.0.1", 2030);
 local Heartbeat = 0;
 
-local function doHeartbeat()
-	WS.Send(game:GetService('HttpService'):JSONEncode({
-		op = 11;
-	}));
-end
-
-WS.Setup("http://127.0.0.1", 2030);
+local OPCodes = {
+	["1"] = function() -- Heartbeat
+		WS.Send(game:GetService('HttpService'):JSONEncode({
+			op = 1;
+		}));
+	end,
+	["2"] = function() -- Identify
+		WS.Send(game:GetService('HttpService'):JSONEncode({
+			op = 2,
+			d = {
+				token = "Bot " .. BotToken,
+				properties = {
+					["$os"] = "windows",
+					["$browser"] = "roblox",
+					["$device"] = "roblox"
+				},
+				
+				presence = {
+					status = "online",
+					game = {
+						name = GameName,
+						type = 0
+					}
+				}
+			}
+		}))
+	end,
+}
 
 WS.onopen = function()
 	print'Discord Bot started.'
@@ -28,12 +58,14 @@ WS.onmessage = function(...)
 		
 		Heartbeat = Decoded.d.heartbeat_interval / 1000;
 		
-	elseif (Decoded.op == 11) then -- Heartbeat request
-		
-		doHeartbeat();
+	elseif (Decoded.op == 1) then -- Heartbeat request
+			
+		OPCodes["1"]();
 		
 	elseif (Event == "MESSAGE_CREATE") then
+		
 		print(Data.author.username .. "#" .. Data.author.discriminator .. ": " .. Data.content);
+		
 	end
 	
 end
@@ -48,25 +80,7 @@ WS.StartListen(1);
 
 WS.Connect("wss://gateway.discord.gg");
 
-WS.Send(game:GetService('HttpService'):JSONEncode({
-	op = 2,
-	d = {
-		token = "Bot TOKEN",
-    
-		properties = {
-			["$os"] = "windows",
-			["$browser"] = "roblox",
-			["$device"] = "roblox"
-		},
-		
-		presence = {
-			status = "online",
-			game = {
-				name = "Run from Roblox"
-			}
-		}
-	}
-}))
+OPCodes['2']();
 
 spawn(function()
 	while wait() do
@@ -74,7 +88,7 @@ spawn(function()
 			wait(.1);
 		else
 			wait(Heartbeat);
-			doHeartbeat();
+			OPCodes["1"]();
 		end
 	end
 end)
