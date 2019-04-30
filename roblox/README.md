@@ -6,7 +6,9 @@ unless otherwise specified. If Success is false, error_or_data will always be th
 
 ##### function API.Setup(string Host, int PORT[, string Authentication])
 Host should be the location of your server without any trailing slashes. EX: http://my.ip.or.domain
+
 Port should be the port you specified in your server.
+
 Authentication should only be specified if there is a password set in the server.
 
 ##### function API.IsConnected()
