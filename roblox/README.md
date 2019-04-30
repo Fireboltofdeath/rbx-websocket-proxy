@@ -4,6 +4,8 @@ All functions will return
 bool Success, variant error_or_data
 unless otherwise specified. If Success is false, error_or_data will always be the error message.
 
+Most functions make HTTP Requests, therefore you should pcall these functions.
+
 ##### function API.Setup(string Host, int PORT[, string Authentication])
 Host should be the location of your server without any trailing slashes. EX: http://my.ip.or.domain
 
