@@ -20,16 +20,42 @@ Returns the url that the WebSocket proxy is already connected to, or false if it
 ##### function API.Connect(string Server)
 Connect to a WebSocket Server, unless already connected to one.
 
-
 ##### function API.Disconnect()
 Disconnect from the current WebSocket Server, unless not connected to one.
+
+##### function API.Send(string Message)
+Send a Message to the server to be sent to the WebSocket server.
+
 
 ##### function API.Ping()
 Prevent server from disconnecting if you do not send any requests to the server in a while.
 
-
-
 #### Events
+
+##### API.onopen()
+Called when the proxy has connected to the WebSocket server.
+
+##### API.onclose()
+Called when the proxy has disconnected from the WebSocket server.
+
+##### API.onmessage(string Message)
+Called when the proxy has received a message.
 
 ##### function API.StartListen(int Interval)
 This will start the actual WebSocket listener, this will make a request to the server every Interval seconds to get any new data that has been sent to you. Events will not be called without this. You should call this before connecting to the server.
+
+### Example
+
+```lua
+API.onopen = function()
+    print("Connected!");
+end
+API.onclose = function()
+    print("Disconnected..");
+end
+API.onmessage = function(msg)
+    print("Received message", msg);
+end
+
+API.StartListen(1); -- Start listening at a 1 second interval.
+```
