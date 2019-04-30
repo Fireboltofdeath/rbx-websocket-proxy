@@ -13,9 +13,7 @@ local Heartbeat = 0;
 
 local OPCodes = {
 	["1"] = function() -- Heartbeat
-		WS.Send(game:GetService('HttpService'):JSONEncode({
-			op = 1;
-		}));
+		WS.Send('{"op": 1, "d": null}');
 	end,
 	["2"] = function() -- Identify
 		WS.Send(game:GetService('HttpService'):JSONEncode({
