@@ -30,7 +30,7 @@ Send a Message to the server to be sent to the WebSocket server.
 ##### function API.Ping()
 Prevent server from disconnecting if you do not send any requests to the server in a while.
 
-#### Events
+## Events
 
 ##### API.onopen()
 Called when the proxy has connected to the WebSocket server.
@@ -44,7 +44,7 @@ Called when the proxy has received a message.
 ##### function API.StartListen(int Interval)
 This will start the actual WebSocket listener, this will make a request to the server every Interval seconds to get any new data that has been sent to you. Events will not be called without this. You should call this before connecting to the server.
 
-### Example
+## Example
 
 ```lua
 API.onopen = function()
