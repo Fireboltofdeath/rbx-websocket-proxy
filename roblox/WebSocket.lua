@@ -140,17 +140,15 @@ end
 
 -- // Listener //
 local isListening = false;
-local listenTime = .1;
 
-function API.StartListen(Interval)
+function API.StartListen()
 	
-	listenTime = Interval or 1;
 	isListening = true;
 	
 end
 
 spawn (function()
-	while wait(listenTime) do
+	while true do
 		
 		local Suc, Error = pcall(function()
 			
@@ -174,6 +172,10 @@ spawn (function()
 					isListening = false;
 					
 				end
+				
+			else
+				
+				wait()
 				
 			end
 			
