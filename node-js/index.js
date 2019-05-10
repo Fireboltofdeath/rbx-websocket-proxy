@@ -1,18 +1,20 @@
 /* Config */
 var Port = 2030; // This can be changed to any port you'd like.
 
-var IdleTimeout = 2; // Defines how long (in minutes) it will take to close the websocket after no activity.
+var IdleTimeout = 2; // Defines how long (in minutes) it will take to close the websocket after no activity from roblox.
 
 var maxMessagesPerRecieve = 20; // Maximum amount of messages sent everytime Roblox requests it.
 
 var Authentication = ""; // Blank is disabled, set to a password to prevent random people from accessing it.
 
+var LongPollTimeout = 30; // How many seconds until long polling should reset the request?
 /* End Config */
 
 const WS = require('ws');
 const colors = require('colors'); // Extends String's prototype to allow easy console colors.
 const json = JSON.stringify;
-
+const Emitter = new (require('events').EventEmitter)();
+Emitter.setMaxListeners(5000000); // Allow as many servers as required to connect.
 
 var WebSocket;
 var Messages = [];
@@ -31,17 +33,20 @@ function startConnection(WebSock) {
 		console.log("Connection closed. " + WebSock.url + ("[ " + code + ", " + reason + "]").red);
 		
 		WebSocket = null;
+		Emitter.emit("data");
 	});
 	
 	WebSock.on("error", function( error ) {
 		console.log("Connection error. ".red + error.toString().red);
 		
 		WebSocket = null;
+		Emitter.emit("data");
 	});
 	
 	WebSock.on("message", function( data ) {
 		
 		Messages.push( data ); // Push any new messages into the message array.
+		Emitter.emit("data");
 		
 	});
 }
@@ -111,10 +116,30 @@ app.get("/connection/get", function( req, res ) {
 app.get("/connection/messages", function( req, res ) {
 	if (WebSocket) {
 		
-		return res.send(json({
-			success: true,
-			data: Messages.splice(0, maxMessagesPerRecieve)
-		}));
+		var dataSent = false;
+		
+		function l() {
+			dataSent = true;
+			return res.send(json({
+				success: true,
+				data: Messages.splice(0, maxMessagesPerRecieve)
+			}));
+		}
+		if (Messages.length > 0) return l();
+		
+		Emitter.once('data', l);
+		setTimeout(function() {
+			if (dataSent) return;
+			
+			Emitter.removeListener('data', l);
+			
+			return res.send(json({
+				success: true,
+				data: Messages.splice(0, maxMessagesPerRecieve)
+			}));
+			
+		}, LongPollTimeout * 1000);
+		
 		
 	} else {
 		
